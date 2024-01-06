@@ -108,7 +108,6 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalManifestDependencies>C:\Users\Alex\Desktop\Уни\3 година\1 Семестър\Курсов проект\CoffeeMachine\CoffeeMachine\CoffeecCup.ico</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

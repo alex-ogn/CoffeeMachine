@@ -379,11 +379,8 @@ INT_PTR CALLBACK Result(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_INITDIALOG:
     { 
 
-        // Load the icon from file
-       // HICON hIcon = (HICON)LoadImage(NULL, "C:\\Users\\Alex\\Desktop\\Уни\\3 година\\1 Семестър\\Курсов проект\\CoffeeMachine\\CoffeeMachine\\CoffeecCup.ico", IMAGE_ICON, 132, 132, LR_LOADFROMFILE);
-
-        // Set the icon in the picture control
-      //  SendDlgItemMessage(hDlg, IDC_PIC, STM_SETICON, (WPARAM)hIcon, 0);
+       HICON hIcon = (HICON)LoadImage(NULL, "C:\\Users\\Alex\\Desktop\\Уни\\3 година\\1 Семестър\\Курсов проект\\ico\\Coffee.ico", IMAGE_ICON, 132, 132, LR_LOADFROMFILE);
+        SendDlgItemMessage(hDlg, IDC_PIC, STM_SETICON, (WPARAM)hIcon, 0);
 
         return (INT_PTR)TRUE;
     }
