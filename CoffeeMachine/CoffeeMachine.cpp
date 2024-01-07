@@ -11,6 +11,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <iomanip>
+#include <sstream>
 
 #define MAX_LOADSTRING 100
 
@@ -22,6 +24,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 money currentInputMoney;
 int currentInputMoneyValue = 0;
 coffe_price currentBevarige;
+int currentSuger = 3;
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -247,10 +250,15 @@ void InitializeCoffeeMachineDialog(HWND hDlg)
     int currentInputMoneyValue = 0;
     coffe_price newBevarige;
     currentBevarige = newBevarige;
+    currentSuger = 3;
 
     InitializeDrinks(hDlg);
 
+    CheckDlgButton(hDlg, IDC_RADIO1, MF_UNCHECKED);
+    CheckDlgButton(hDlg, IDC_RADIO2, MF_UNCHECKED);
     CheckDlgButton(hDlg, IDC_RADIO3, MFS_CHECKED);
+    CheckDlgButton(hDlg, IDC_RADIO4, MF_UNCHECKED);
+    CheckDlgButton(hDlg, IDC_RADIO5, MF_UNCHECKED);
     EnableWindow(GetDlgItem(hDlg, IDC_BUUTON_GET), FALSE);
     EnableAllBevarige(hDlg, TRUE);
     EnableSuger(hDlg, TRUE);
@@ -308,10 +316,9 @@ void InitializeDrinks(HWND hDlg)
 
 void OnBevarige(HWND hDlg, int bevarigeNumber)
 {
-    coffe_price bevarige;
-    BevaregesInitializer().GetBevarigeByNumber(bevarigeNumber, bevarige);
+    BevaregesInitializer().GetBevarigeByNumber(bevarigeNumber, currentBevarige);
     double currentMoney = currentInputMoneyValue / 100.0;
-    if (currentMoney < bevarige.price)
+    if (currentMoney < currentBevarige.price)
     {
         SetInfoText(hDlg, (LPSTR)"Недостатъчна наличност. \nВъведете по-голяма сума или изберете друга напитка.");
         return;
@@ -329,10 +336,58 @@ void OnBevarige(HWND hDlg, int bevarigeNumber)
         std::this_thread::sleep_for(std::chrono::milliseconds(15));
     }
 
-    SetInfoText(hDlg, currentMoney == bevarige.price ? (LPSTR)"Вземете вашата напитка." : (LPSTR)"Вземете вашата напитка и ресто.");
+    SetInfoText(hDlg, currentMoney == currentBevarige.price ? (LPSTR)"Вземете вашата напитка." : (LPSTR)"Вземете вашата напитка и ресто.");
 
     HWND buttonHandle = GetDlgItem(hDlg, IDC_BUUTON_GET);
     EnableWindow(buttonHandle, TRUE);
+
+
+    if(IsDlgButtonChecked(hDlg, IDC_RADIO1))
+       currentSuger = 0;
+    else if(IsDlgButtonChecked(hDlg, IDC_RADIO2))
+       currentSuger = 1;
+    else if(IsDlgButtonChecked(hDlg, IDC_RADIO3))
+       currentSuger = 2;
+    else if(IsDlgButtonChecked(hDlg, IDC_RADIO4))
+       currentSuger = 3;
+    else if(IsDlgButtonChecked(hDlg, IDC_RADIO5))
+       currentSuger = 4;
+}
+
+void SetResto(money& restoMoney)
+{
+    money newRestoMoney;
+    restoMoney = newRestoMoney;
+
+    double resto = currentInputMoneyValue - currentBevarige.price * 100;
+
+    while (resto > 0)
+    {
+        if (resto >= 100) {
+            restoMoney.conut1++;
+            resto -= 100;
+        }
+        else if (resto >= 50)
+        {
+            restoMoney.conut50++;
+            resto -= 50;
+        }
+        else if (resto >= 20)
+        {
+            restoMoney.conut20++;
+            resto -= 20;
+        }
+        else if (resto >= 10)
+        {
+            restoMoney.conut10++;
+            resto -= 10;
+        }
+        else if (resto >= 5)
+        {
+            restoMoney.conut05++;
+            resto -= 5;
+        }
+    }
 }
 
 INT_PTR CALLBACK CoffeMachine(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -427,7 +482,6 @@ void ChangeCoffeeDlgMoneyValue(HWND hDlg)
     SetDlgItemText(hDlg, IDC_EDT_COFFE_MONEY, GetMoneyStringvalue().c_str());
 }
 
-// Message handler for about box.
 INT_PTR CALLBACK Money(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -498,26 +552,34 @@ INT_PTR CALLBACK Result(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     { 
-
        HICON hIcon = (HICON)LoadImage(NULL, "C:\\Users\\Alex\\Desktop\\Уни\\3 година\\1 Семестър\\Курсов проект\\ico\\Coffee.ico", IMAGE_ICON, 132, 132, LR_LOADFROMFILE);
-        SendDlgItemMessage(hDlg, IDC_PIC, STM_SETICON, (WPARAM)hIcon, 0);
+       SendDlgItemMessage(hDlg, IDC_PIC, STM_SETICON, (WPARAM)hIcon, 0);
 
-        return (INT_PTR)TRUE;
+       std::string info = "Поръчка: " + currentBevarige.description + "\n Количество захарчета: " + std::to_string(currentSuger);
+       SetDlgItemText(hDlg, IDC_STT_BEV_INFO, info.c_str());
+       money restoMoney;
+       SetResto(restoMoney);
+
+       SetDlgItemText(hDlg, EDB_RESTO_05, std::to_string(restoMoney.conut05).c_str());
+       SetDlgItemText(hDlg, EDB_RESTO_10, std::to_string(restoMoney.conut10).c_str());
+       SetDlgItemText(hDlg, EDB_RESTO_20, std::to_string(restoMoney.conut20).c_str());
+       SetDlgItemText(hDlg, EDB_RESTO_50, std::to_string(restoMoney.conut50).c_str());
+       SetDlgItemText(hDlg, EDB_RESTO_1, std::to_string(restoMoney.conut1).c_str());
+
+       std::ostringstream stream;
+       stream << std::fixed << std::setprecision(2) << currentInputMoneyValue / 100.0 - currentBevarige.price;
+       SetDlgItemText(hDlg, IDC_EDB_RESTO, stream.str().c_str());
+
+       return (INT_PTR)TRUE;
     }
-
     case WM_COMMAND:
         if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
         }
-        else
-        {
-
-        }
         break;
     }
-
     return (INT_PTR)FALSE;
 }
 

@@ -72,10 +72,17 @@
 #define IDC_EDT_1                       1051
 #define IDC_EDIT6                       1052
 #define IDC_EDIT_VALUE                  1052
+#define EDB_RESTO_1                     1052
 #define IDC_EDT_COFFE_MONEY             1053
 #define IDC_EDT_INFO                    1054
 #define IDC_PIC                         1055
 #define IDC_STT_INFO                    1056
+#define IDC_EDB_RESTO                   1057
+#define EDB_RESTO_05                    1058
+#define EDB_RESTO_10                    1059
+#define EDB_RESTO_20                    1060
+#define EDB_RESTO_50                    1061
+#define IDC_STT_BEV_INFO                1062
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -85,7 +92,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1057
+#define _APS_NEXT_CONTROL_VALUE         1063
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
