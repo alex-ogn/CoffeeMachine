@@ -7,6 +7,12 @@ struct coffe_price
 {
 	std::string description;
 	double price;
+
+	coffe_price()
+	{
+		description = "";
+		price = 0;
+	}
 };
 
 struct money

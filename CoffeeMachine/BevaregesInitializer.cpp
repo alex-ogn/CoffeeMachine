@@ -72,6 +72,14 @@ void BevaregesInitializer::InitializePrice(HWND hDlg, int nIDDlgItem[BEVAREGE_CO
 	}
 }
 
+void BevaregesInitializer::GetBevarigeByNumber(int number, coffe_price& bevarige)
+{
+	if (number < 1 || number > BEVAREGE_COUNT)
+		return;
+
+	bevarige = bevariges[--number];
+}
+
 
 
 

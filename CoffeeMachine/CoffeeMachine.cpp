@@ -5,8 +5,12 @@
 #include "CoffeeMachine.h"
 #include "CoffePriceStruct.h"
 #include "BevaregesInitializer.h"
+#include"commctrl.h"
 #include <iostream>
 #include <string>
+#include <iostream>
+#include <chrono>
+#include <thread>
 
 #define MAX_LOADSTRING 100
 
@@ -17,6 +21,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
 money currentInputMoney;
 int currentInputMoneyValue = 0;
+coffe_price currentBevarige;
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -32,6 +37,8 @@ std::string GetMoneyStringvalue();
 void ChangeMoneyDlgValue(HWND hDlg);
 void ChangeCoffeeDlgMoneyValue(HWND hDlg);
 void CalculateMoney();
+void SetInfoText(HWND hDlg, LPSTR text);
+int GetButtonNumber(int button);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -154,27 +161,103 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-//void SetInfoText(HWND hDlg, LPSTR text)
-//{
-//    SetDlgItemText(hDlg, IDC_EDT_INFO, text);
-//}
+void SetInfoText(HWND hDlg, LPSTR text)
+{
+    SetDlgItemText(hDlg, IDC_STT_INFO, text);
+}
 
+int GetButtonNumber(int button)
+{
+    int number = 0;
+
+    switch (button)
+    {
+    case IDC_BUTTON1:
+        number = 1;
+        break;
+    case IDC_BUTTON2:
+        number = 2;
+        break;
+    case IDC_BUTTON3:
+        number = 3;
+        break;
+    case IDC_BUTTON4:
+        number = 4;
+        break;
+    case IDC_BUTTON5:
+        number = 5;
+        break;
+    case IDC_BUTTON6:
+        number = 6;
+        break;
+    case IDC_BUTTON7:
+        number = 7;
+        break;
+    case IDC_BUTTON8:
+        number = 8;
+        break;
+    case IDC_BUTTON9:
+        number = 9;
+        break;
+    case IDC_BUTTON10:
+        number = 10;
+        break;
+    case IDC_BUTTON11:
+        number = 11;
+        break;
+    case IDC_BUTTON12:
+        number = 12;
+        break;
+    default:
+        break;
+    }
+
+    return number;
+}
+
+void EnableAllBevarige(HWND hDlg, BOOL desable)
+{
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON1), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON2), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON3), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON4), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON5), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON6), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON7), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON8), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON9), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON10), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON11), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON12), desable);
+}
+
+void EnableSuger(HWND hDlg, BOOL desable)
+{
+    EnableWindow(GetDlgItem(hDlg, IDC_RADIO1), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_RADIO2), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_RADIO3), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_RADIO4), desable);
+    EnableWindow(GetDlgItem(hDlg, IDC_RADIO5), desable);
+}
 
 void InitializeCoffeeMachineDialog(HWND hDlg)
 {
     money newInputMoney;
     currentInputMoney = newInputMoney;
+    int currentInputMoneyValue = 0;
+    coffe_price newBevarige;
+    currentBevarige = newBevarige;
 
     InitializeDrinks(hDlg);
 
     CheckDlgButton(hDlg, IDC_RADIO3, MFS_CHECKED);
-    HWND buttonHandle = GetDlgItem(hDlg, IDC_BUUTON_GET);
-    EnableWindow(buttonHandle, FALSE);
-
-  //  SendDlgItemMessage(hDlg, IDC_PROGRESS1, PBM_SETPOS, poss, 0);
-
-  //  SetInfoText(hDlg, (LPSTR)"Въведете желаната сума.");
-    
+    EnableWindow(GetDlgItem(hDlg, IDC_BUUTON_GET), FALSE);
+    EnableAllBevarige(hDlg, TRUE);
+    EnableSuger(hDlg, TRUE);
+    SendDlgItemMessage(hDlg, IDC_PROGRESS1, PBM_SETPOS, 0, 0);
+    ChangeCoffeeDlgMoneyValue(hDlg);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_ENTER_SUM), TRUE);
+    SetInfoText(hDlg, (LPSTR)"Въведете желаната сума.");
 }
 
 void InitializeMoney(HWND hDlg)
@@ -223,6 +306,35 @@ void InitializeDrinks(HWND hDlg)
     bevaregesInitializer.InitializePrice(hDlg, nIDDlgItemPrice);
 }
 
+void OnBevarige(HWND hDlg, int bevarigeNumber)
+{
+    coffe_price bevarige;
+    BevaregesInitializer().GetBevarigeByNumber(bevarigeNumber, bevarige);
+    double currentMoney = currentInputMoneyValue / 100.0;
+    if (currentMoney < bevarige.price)
+    {
+        SetInfoText(hDlg, (LPSTR)"Недостатъчна наличност. \nВъведете по-голяма сума или изберете друга напитка.");
+        return;
+    }
+
+    SetInfoText(hDlg, (LPSTR)"Напитката Ви е в процес на приготвяне.");
+
+    EnableAllBevarige(hDlg, FALSE);
+    EnableSuger(hDlg, FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_ENTER_SUM), FALSE);
+
+    for (int i = 0; i <= 100; i++)
+    {
+        SendDlgItemMessage(hDlg, IDC_PROGRESS1, PBM_SETPOS, i, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+    }
+
+    SetInfoText(hDlg, currentMoney == bevarige.price ? (LPSTR)"Вземете вашата напитка." : (LPSTR)"Вземете вашата напитка и ресто.");
+
+    HWND buttonHandle = GetDlgItem(hDlg, IDC_BUUTON_GET);
+    EnableWindow(buttonHandle, TRUE);
+}
+
 INT_PTR CALLBACK CoffeMachine(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -236,19 +348,25 @@ INT_PTR CALLBACK CoffeMachine(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
     }
     case WM_COMMAND:
     {
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        if (LOWORD(wParam) == IDCANCEL)
         {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
+            PostQuitMessage(0);
         }
         else if (LOWORD(wParam) == IDC_BUTTON_ENTER_SUM)
         {
             DialogBox(hInst, MAKEINTRESOURCE(IDD_MONNEY), hDlg, Money);
             ChangeCoffeeDlgMoneyValue(hDlg);
+
+            SetInfoText(hDlg, currentInputMoneyValue > 0 ? (LPSTR)"Изберете желаната напитка." : (LPSTR)"Въведете желаната сума.");
         }
         else if (LOWORD(wParam) == IDC_BUUTON_GET)
         {
             DialogBox(hInst, MAKEINTRESOURCE(IDD_RESULT), hDlg, Result);
+            InitializeCoffeeMachineDialog(hDlg);
+        }
+        else if (GetButtonNumber(LOWORD(wParam)) != 0) // въведена е напитка
+        {
+            OnBevarige(hDlg, (GetButtonNumber(LOWORD(wParam))));
         }
         break;
     }
@@ -294,7 +412,9 @@ std::string GetMoneyStringvalue()
     if (secondNumber < 9)
         secondNumberString = "0" + secondNumberString;
 
-    return firstNumberString + "," + secondNumberString;
+    std::string finalValue = (firstNumberString + "," + secondNumberString + " лв");
+
+    return finalValue;
 }
 
 void ChangeMoneyDlgValue(HWND hDlg)
